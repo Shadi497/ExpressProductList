@@ -10,7 +10,7 @@ exports.fetchProduct = async (productId, next) => {
   }
 };
 
-exports.productList = async (req, res) => {
+exports.productList = async (req, res, next) => {
   try {
     const products = await Product.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
@@ -25,7 +25,7 @@ exports.productDetail = async (req, res, next) => {
   res.status(200).json(req.product);
 };
 
-exports.productCreate = async (req, res) => {
+exports.productCreate = async (req, res, next) => {
   try {
     const newProduct = await Product.create(req.body);
     res.status(201).json(newProduct);

@@ -2,8 +2,10 @@ const express = require("express");
 const App = express();
 const db = require("./db/models");
 const productRoutes = require("./routes/products");
+const cors = require("cors");
 
 App.use(express.json());
+App.use(cors());
 App.use("/products", productRoutes);
 
 //Not Found
@@ -21,8 +23,8 @@ App.use((error, req, res, next) => {
     .json({ message: error.message || "Internal Server Error" });
 });
 
-db.sequelize.sync({ alter: true });
-// db.sequelize.sync({ force: true });
+// db.sequelize.sync({ alter: true });
+db.sequelize.sync({ force: true });
 
 App.listen(8000, () => {
   console.log("Application is running");
