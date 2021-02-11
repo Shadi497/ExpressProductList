@@ -6,6 +6,21 @@ const productRoutes = require("./routes/products");
 App.use(express.json());
 App.use("/products", productRoutes);
 
+//Not Found
+App.use((req, res, next) => {
+  next({
+    status: 404,
+    message: "Path not found",
+  });
+});
+
+//Error Handling
+App.use((error, req, res, next) => {
+  res
+    .status(error.status || 500)
+    .json({ message: error.message || "Internal Server Error" });
+});
+
 db.sequelize.sync({ alter: true });
 // db.sequelize.sync({ force: true });
 

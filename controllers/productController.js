@@ -1,28 +1,28 @@
 const { Product } = require("../db/models");
 
+exports.fetchProduct = async (productId, next) => {
+  try {
+    const foundProduct = await Product.findByPk(productId);
+    if (foundProduct) return foundProduct;
+    else next({ message: "Product does not exist" });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.productList = async (req, res) => {
   try {
     const products = await Product.findAll({
       attributes: { exclude: ["createdAt", "updatedAt"] },
     });
-    res.json(products);
+    res.status(200).json(products);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.productDetail = async (req, res) => {
-  const { productId } = req.params;
-  try {
-    const foundProduct = await Product.findByPk(productId);
-    foundProduct
-      ? res.json(foundProduct)
-      : res
-          .status(404)
-          .json({ message: "No such product found to be displayed!" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+exports.productDetail = async (req, res, next) => {
+  res.status(200).json(req.product);
 };
 
 exports.productCreate = async (req, res) => {
@@ -30,36 +30,16 @@ exports.productCreate = async (req, res) => {
     const newProduct = await Product.create(req.body);
     res.status(201).json(newProduct);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
 exports.productDelete = async (req, res) => {
-  const { productId } = req.params;
-
-  try {
-    const foundProduct = await Product.findByPk(productId);
-    foundProduct
-      ? (await foundProduct.destroy(), res.status(204).end())
-      : res
-          .status(404)
-          .json({ message: "No such product found to be deleted!" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  await req.product.destroy();
+  res.status(200).end();
 };
 
 exports.productUpdate = async (req, res) => {
-  const { productId } = req.params;
-
-  try {
-    const foundProduct = await Product.findByPk(productId);
-    foundProduct
-      ? (await foundProduct.update(req.body), res.status(204).end())
-      : res
-          .status(404)
-          .json({ message: "No such product found to be updated!" });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
+  await req.product.update(req.body);
+  res.status(200).json(req.product);
 };
