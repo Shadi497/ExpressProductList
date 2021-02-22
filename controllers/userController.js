@@ -10,7 +10,14 @@ exports.signup = async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     req.body.password = hashedPassword;
     const newUser = await User.create(req.body);
-    res.status(201).json(newUser);
+    const payload = {
+      id: newUser.id,
+      username: newUser.username,
+      firstname: newUser.firstname,
+      exp: Date.now() + 5000,
+    };
+    const token = jwt.sign(JSON.stringify(payload), "superkey");
+    res.status(201).json({ token });
   } catch (error) {
     next(error);
   }
@@ -22,7 +29,8 @@ exports.signin = async (req, res, next) => {
     const payload = {
       id: user.id,
       username: user.username,
-      exp: Date.now() + 500000,
+      firstname: user.firstname,
+      exp: Date.now() + 5000,
     };
     const token = jwt.sign(JSON.stringify(payload), "superkey");
     res.json({ token });

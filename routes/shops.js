@@ -29,7 +29,7 @@ router.param("shopId", async (req, res, next, shopId) => {
 router.get("/", shopList);
 
 //create shop
-router.post("/", upload.single("image"), shopCreate);
+router.post("/new", upload.single("image"), shopCreate);
 
 //create product
 router.post("/:shopId/products", upload.single("image"), productCreate);
