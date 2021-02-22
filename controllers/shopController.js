@@ -30,11 +30,24 @@ exports.shopDetail = async (req, res, next) => {
 
 exports.shopCreate = async (req, res, next) => {
   try {
-    if (req.file) {
-      req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+    const foundshop = await Shop.findOne({
+      where: {
+        userId: req.user.id,
+      },
+    });
+    if (foundshop) {
+      next({
+        status: 400,
+        message: "You already have one shop !!",
+      });
+    } else {
+      if (req.file) {
+        req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+      }
+      req.body.userId = req.user.id;
+      const newShop = await Shop.create(req.body);
+      res.status(201).json(newShop);
     }
-    const newShop = await Shop.create(req.body);
-    res.status(201).json(newShop);
   } catch (error) {
     next(error);
   }
@@ -55,21 +68,47 @@ exports.shopUpdate = async (req, res) => {
 
 exports.productCreate = async (req, res, next) => {
   try {
-    req.body.shopId = req.shop.id;
-    if (req.file) {
-      req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+    if (req.user.id === req.shop.userId) {
+      req.body.shopId = req.shop.id;
+      if (req.file) {
+        req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+      }
+      const newProduct = await Product.create(req.body);
+      res.status(201).json(newProduct);
+    } else {
+      next({
+        status: 401,
+        message: "You can't add in another user's shop !!",
+      });
     }
-    const newProduct = await Product.create(req.body);
-    res.status(201).json(newProduct);
   } catch (error) {
     next(error);
   }
 };
 
-exports.productUpdate = async (req, res) => {
-  if (req.file) {
-    req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+exports.productDelete = async (req, res) => {
+  if (req.user.id === req.shop.userId) {
+    await req.product.destroy();
+    res.status(200).end();
+  } else {
+    next({
+      status: 401,
+      message: "You can't delete products from another user's shop !!",
+    });
   }
-  const re = await req.product.update(req.body);
-  res.status(200).json(re);
+};
+
+exports.productUpdate = async (req, res) => {
+  if (req.user.id === req.shop.userId) {
+    if (req.file) {
+      req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+    }
+    const re = await req.product.update(req.body);
+    res.status(200).json(re);
+  } else {
+    next({
+      status: 401,
+      message: "You can't update products from another user's shop !!",
+    });
+  }
 };

@@ -1,4 +1,5 @@
 const express = require("express");
+const passport = require("passport");
 const {
   // productCreate,
   productList,
@@ -33,9 +34,18 @@ router.get("/", productList);
 router.get("/:productId", productDetail);
 
 //delete
-router.delete("/:productId", productDelete);
+router.delete(
+  "/:productId",
+  passport.authenticate("jwt", { session: false }),
+  productDelete
+);
 
 //update
-router.put("/:productId", upload.single("image"), productUpdate);
+router.put(
+  "/:productId",
+  passport.authenticate("jwt", { session: false }),
+  upload.single("image"),
+  productUpdate
+);
 
 module.exports = router;
