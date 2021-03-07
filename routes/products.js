@@ -1,7 +1,6 @@
 const express = require("express");
 const passport = require("passport");
 const {
-  // productCreate,
   productList,
   productDetail,
   productDelete,
@@ -24,8 +23,6 @@ router.param("productId", async (req, res, next, productId) => {
     });
   }
 });
-
-// router.post("/", upload.single("image"), productCreate);
 
 //list
 router.get("/", productList);

@@ -1,5 +1,4 @@
-const { Shop } = require("../db/models");
-const { Product } = require("../db/models");
+const { Shop, Product } = require("../db/models");
 
 exports.fetchShop = async (shopId, next) => {
   try {
@@ -42,7 +41,7 @@ exports.shopCreate = async (req, res, next) => {
       });
     } else {
       if (req.file) {
-        req.body.image = `http://${req.get("host")}/media/${req.file.filename}`;
+        req.body.image = `http://192.168.100.181:8000/media/${req.file.filename}`;
       }
       req.body.userId = req.user.id;
       const newShop = await Shop.create(req.body);
